@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}slocloud{% endblock %}
+
+{% block head %}
+  {{ dropzone.load_css() }}
+  {{ dropzone.style('border: 2px dashed #0087F7; margin: 10%; min-height: 400px;') }}
+{% endblock %}
+
+{% block body %}    
+  {{ dropzone.create(action='upload') }}
+  {{ dropzone.load_js() }}
+  {{ dropzone.config() }}
+{% endblock %}
+

@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}Media{% endblock %}
+
+{% block body %}
+	<a href="{{ url_for('upload') }}">
+		<button type="button">Upload in current folder</button>
+	</a>
+	<a href="{{ url_for('render_new_folder_form') }}">
+		<button type="button">Create new folder</button>
+	</a>
+    
+    <ul>
+        {% for directory in sub_directories %}
+            <li>
+				<a href="{{ url_for('show_directory', path=relative_path + directory) }}">
+                    {{ directory }}
+                </a>
+            </li>
+        {% endfor %}
+        
+         {% for file in files %}
+            <li>
+				{{ file }}
+            </li>
+        {% endfor %}
+    </ul>
+    
+    <!-- Show second button if at least one file or sub directory exists-->
+    {% if sub_directorie or files %}
+		<a href="{{ url_for('upload') }}">
+			<button type="button">Upload in current folder</button>
+		</a>
+	{% endif %}
+{% endblock %}
