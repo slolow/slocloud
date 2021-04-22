@@ -3,20 +3,20 @@
 {% block title %}Media{% endblock %}
 
 {% block body %}
-	<a href="{{ url_for('upload') }}">
+	<a href="{{ url_for('upload', path=path) }}">
 		<button type="button">Upload in current folder</button>
 	</a>
-	<a href="{{ url_for('render_new_folder_form') }}">
+	<a href="{{ url_for('render_new_folder_form', path=path) }}">
 		<button type="button">Create new folder</button>
 	</a>
     
     <ul>
         {% for directory in sub_directories %}
             <li>
-				<a href="{{ url_for('show_directory', path=rel_path + directory) }}">
+				<a href="{{ url_for('show_directory', path=path + directory) }}">
                     {{ directory }}
                 </a>
-               	<a href="{{ url_for('confirm_delete_folder', path=rel_path + directory) }}">
+               	<a href="{{ url_for('confirm_delete_folder', path=path + directory) }}">
 					<button type="button">Delete this folder</button>
 				</a>
             </li>
@@ -24,10 +24,10 @@
         
          {% for file in files %}
             <li>
-				<a href="{{ url_for('show_directory', path=rel_path + file) }}" target="_blank">
+				<a href="{{ url_for('show_directory', path=path + file) }}" target="_blank">
                     {{ file }}
                 </a>
-                <a href="{{ url_for('confirm_delete_folder', path=rel_path + file) }}">
+                <a href="{{ url_for('confirm_delete_folder', path=path + file) }}">
 					<button type="button">Delete this file</button>
 				</a>
             </li>
@@ -36,10 +36,10 @@
     
     <!-- Show second button if at least one file or sub directory exists-->
     {% if sub_directorie or files %}
-		<a href="{{ url_for('upload') }}">
+		<a href="{{ url_for('upload', path=path) }}">
 			<button type="button">Upload in current folder</button>
 		</a>
-		<a href="{{ url_for('render_new_folder_form') }}">
+		<a href="{{ url_for('render_new_folder_form', path=path) }}">
 			<button type="button">Create new folder</button>
 		</a>
 	{% endif %}

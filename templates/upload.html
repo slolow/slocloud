@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block body %}    
-  {{ dropzone.create(action='upload') }}
+  {{ dropzone.create(action=url_for('upload', path=path)) }}
   {{ dropzone.load_js() }}
-  {{ dropzone.config() }}
+  {{ dropzone.config(redirect_url=url_for('completed', path=path)) }}
 {% endblock %}
 
