@@ -5,8 +5,11 @@
     :license: MIT, see LICENSE for more details.
 """
 import os
+import shutil
+import webbrowser
+import ntpath
 
-from flask import Flask, render_template, request, make_response, redirect, url_for
+from flask import Flask, render_template, request, make_response, redirect, url_for, send_file
 from flask_dropzone import Dropzone
 from flask_wtf.csrf import CSRFProtect, CSRFError
 
@@ -75,19 +78,24 @@ def log_in():
 
 
 @app.route('/media')
+@app.route('/media/')
 def show_main_directory():
+    global temp_path
+    temp_path = basedir
     sub_dir_and_files = get_sub_dir_and_files(basedir)
-    return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], relative_path='')
+    return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], rel_path='', abs_path=temp_path)
         
 
 @app.route('/media/<path:path>')
 def show_directory(path):
     """Shows current directory structur (sub directories and files) and sets the temp_path in global space"""
     if os.path.exists(os.path.join(basedir, path)):
+        if os.path.isfile(os.path.join(basedir, path)):
+            return send_file(os.path.join(basedir, path), attachment_filename=ntpath.basename(os.path.join(basedir, path)))
         global temp_path
         temp_path = os.path.join(basedir, path)
         sub_dir_and_files = get_sub_dir_and_files(temp_path)
-        return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], relative_path=path + '/')
+        return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], rel_path=path + '/')
     return make_response(render_template('400.html', path=os.path.join(basedir, path)), 400)
 
 
@@ -109,6 +117,21 @@ def create_new_folder():
 #        return make_response(render_template('400.html', path=path, 400)
 #    else:
 #        return redirect(url_for('show_directory', path))
+
+
+@app.route('/confirm-delete-folder')
+def confirm_delete_folder():
+    rel_path = os.path.relpath(temp_path, start=basedir)
+    return render_template('confirmdelete.html', rel_path=rel_path)
+
+
+@app.route('/delete-folder')
+def delete_folder():
+    global temp_path
+    shutil.rmtree(temp_path)
+    temp_path = os.path.dirname(temp_path)   # reset global temp_path to parent folder from deleted folder
+    rel_path = os.path.relpath(temp_path, start=basedir)
+    return redirect(url_for('show_directory', path=rel_path))
     
 
 
