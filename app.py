@@ -83,7 +83,7 @@ def show_main_directory():
     global global_temp_path
     global_temp_path = basedir
     sub_dir_and_files = get_sub_dir_and_files(basedir)
-    return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], rel_path='', abs_path=global_temp_path)
+    return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], rel_path='')
         
 
 @app.route('/media/<path:path>')
@@ -120,19 +120,25 @@ def create_new_folder():
 #        return redirect(url_for('show_directory', path))
 
 
-@app.route('/confirm-delete-folder')
-def confirm_delete_folder():
-    rel_path = os.path.relpath(global_temp_path, start=basedir)
-    return render_template('confirmdelete.html', rel_path=rel_path)
+@app.route('/confirm-delete-folder/<path:path>')
+def confirm_delete_folder(path):
+    global global_temp_path
+    global_temp_path = path
+    return render_template('confirmdelete.html', rel_path=path)
 
 
 @app.route('/delete-folder')
 def delete_folder():
     global global_temp_path
-    shutil.rmtree(global_temp_path)
+    path = os.path.join(basedir, global_temp_path)
+    if os.path.isfile(path):
+        os.remove(path)
+    else:
+        shutil.rmtree(path)
     global_temp_path = os.path.dirname(global_temp_path)   # reset global global_temp_path to parent folder from deleted folder
-    rel_path = os.path.relpath(global_temp_path, start=basedir)
-    return redirect(url_for('show_directory', path=rel_path))
+        #rel_path = os.path.relpath(global_temp_path, start=basedir)
+    return redirect(url_for('show_directory', path=global_temp_path))
+    #return redirect(url_for('show_directory', path=path))
     
 
 

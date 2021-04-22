@@ -9,9 +9,6 @@
 	<a href="{{ url_for('render_new_folder_form') }}">
 		<button type="button">Create new folder</button>
 	</a>
-	<a href="{{ url_for('confirm_delete_folder') }}">
-		<button type="button">Delete this folder</button>
-	</a>
     
     <ul>
         {% for directory in sub_directories %}
@@ -19,6 +16,9 @@
 				<a href="{{ url_for('show_directory', path=rel_path + directory) }}">
                     {{ directory }}
                 </a>
+               	<a href="{{ url_for('confirm_delete_folder', path=rel_path + directory) }}">
+					<button type="button">Delete this folder</button>
+				</a>
             </li>
         {% endfor %}
         
@@ -27,6 +27,9 @@
 				<a href="{{ url_for('show_directory', path=rel_path + file) }}" target="_blank">
                     {{ file }}
                 </a>
+                <a href="{{ url_for('confirm_delete_folder', path=rel_path + file) }}">
+					<button type="button">Delete this file</button>
+				</a>
             </li>
         {% endfor %}
     </ul>
