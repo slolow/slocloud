@@ -80,21 +80,22 @@ def log_in():
 @app.route('/media')
 @app.route('/media/')
 def show_main_directory():
-    global temp_path
-    temp_path = basedir
+    global global_temp_path
+    global_temp_path = basedir
     sub_dir_and_files = get_sub_dir_and_files(basedir)
-    return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], rel_path='', abs_path=temp_path)
+    return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], rel_path='', abs_path=global_temp_path)
         
 
 @app.route('/media/<path:path>')
 def show_directory(path):
-    """Shows current directory structur (sub directories and files) and sets the temp_path in global space"""
-    if os.path.exists(os.path.join(basedir, path)):
-        if os.path.isfile(os.path.join(basedir, path)):
-            return send_file(os.path.join(basedir, path), attachment_filename=ntpath.basename(os.path.join(basedir, path)))
-        global temp_path
-        temp_path = os.path.join(basedir, path)
-        sub_dir_and_files = get_sub_dir_and_files(temp_path)
+    """Shows current directory structur (sub directories and files) and sets the global_temp_path in global space"""
+    temp_path = os.path.join(basedir, path)
+    if os.path.exists(temp_path):
+        if os.path.isfile(temp_path):
+            return send_file(temp_path, attachment_filename=ntpath.basename(temp_path))
+        global global_temp_path
+        global_temp_path = temp_path
+        sub_dir_and_files = get_sub_dir_and_files(global_temp_path)
         return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], rel_path=path + '/')
     return make_response(render_template('400.html', path=os.path.join(basedir, path)), 400)
 
@@ -107,7 +108,7 @@ def render_new_folder_form():
 @app.route('/create-new-folder', methods = ['POST'])
 def create_new_folder():
     folder = request.form.get('folder_name')
-    path = os.path.join(temp_path, folder)
+    path = os.path.join(global_temp_path, folder)
     os.mkdir(path)
     rel_path = os.path.relpath(path, start=basedir)
     return redirect(url_for('show_directory', path=rel_path))
@@ -121,30 +122,30 @@ def create_new_folder():
 
 @app.route('/confirm-delete-folder')
 def confirm_delete_folder():
-    rel_path = os.path.relpath(temp_path, start=basedir)
+    rel_path = os.path.relpath(global_temp_path, start=basedir)
     return render_template('confirmdelete.html', rel_path=rel_path)
 
 
 @app.route('/delete-folder')
 def delete_folder():
-    global temp_path
-    shutil.rmtree(temp_path)
-    temp_path = os.path.dirname(temp_path)   # reset global temp_path to parent folder from deleted folder
-    rel_path = os.path.relpath(temp_path, start=basedir)
+    global global_temp_path
+    shutil.rmtree(global_temp_path)
+    global_temp_path = os.path.dirname(global_temp_path)   # reset global global_temp_path to parent folder from deleted folder
+    rel_path = os.path.relpath(global_temp_path, start=basedir)
     return redirect(url_for('show_directory', path=rel_path))
     
 
 
 @app.route('/upload', methods=['POST', 'GET'])
 def upload():
-    """upload files in temp_path"""
+    """upload files in global_temp_path"""
     if request.method == 'POST':
         for key, f in request.files.items():
             if key.startswith('file'):
-                f.save(os.path.join(temp_path, f.filename))
+                f.save(os.path.join(global_temp_path, f.filename))
     return render_template('upload.html')
 
 
 @app.route('/completed')
 def completed():
-    return render_template('complete.html', path=temp_path)
+    return render_template('complete.html', path=global_temp_path)
