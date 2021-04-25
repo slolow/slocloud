@@ -26,10 +26,6 @@ if not os.getenv('PASSWORD'):
 basedir = os.getenv('BASEDIR')
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
-print()
-print(password)
-print(type(password))
-print()
 authenticated_user = False
 
 
@@ -88,19 +84,10 @@ def inject_authentication():
 
 @app.before_request
 def check_login():
-    print()
-    print('request path')
-    print(request.path)
-    print(type(request.path))
-    print('url_for')
-    print(url_for('login'))
-    print(type(url_for('login')))
-    print()
     if authenticated_user or request.path == url_for('login'):
         return None
     flash('You need to be login to get access')
     return redirect(url_for('login', next=request.endpoint))
-#    return "correct password"
 
 
 @app.route('/')
