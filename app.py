@@ -6,7 +6,6 @@
 """
 import os
 import shutil
-import webbrowser
 import ntpath
 import urllib
 
@@ -37,7 +36,6 @@ app.config.update(
     DROPZONE_PARALLEL_UPLOADS=3,  # set parallel amount
     DROPZONE_UPLOAD_MULTIPLE=True,  # enable upload multiple
     DROPZONE_ENABLE_CSRF=True,  # enable CSRF protection
-    #DROPZONE_REDIRECT_VIEW='completed'
 )
 
 dropzone = Dropzone(app)
