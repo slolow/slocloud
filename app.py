@@ -9,20 +9,29 @@ import shutil
 import ntpath
 import urllib
 
-from flask import Flask, render_template, request, make_response, redirect, url_for, send_file
+from flask import Flask, render_template, request, make_response, redirect, url_for, send_file, flash
 from flask_dropzone import Dropzone
 from flask_wtf.csrf import CSRFProtect, CSRFError
+from werkzeug.urls import url_parse
 
 
 if not os.getenv('BASEDIR'):
     raise RuntimeError('BASEDIR is not set as environment variable.')
 if not os.getenv('SECRET_KEY'):
     raise RuntimeError('SECRET_KEY is not set as environment variable.')
+if not os.getenv('USERNAME'):
+    raise RuntimeError('USERNAME is not set as environment variable.')
+if not os.getenv('PASSWORD'):
+    raise RuntimeError('PASSWORD is not set as environment variable.')
 basedir = os.getenv('BASEDIR')
+username = os.getenv('USERNAME')
+password = os.getenv('PASSWORD')
 print()
-print('basedir')
-print(basedir)
+print(password)
+print(type(password))
 print()
+authenticated_user = False
+
 
 app = Flask(__name__)
 
@@ -72,30 +81,59 @@ def csrf_error(e):
     return e.description, 400
 
 
-# can be used to check if user is loged in but better check this out:
-#https://flask-login.readthedocs.io/en/latest/ with @login_required
-#@app.before_request()
-#def check_log_in():
+@app.context_processor
+def inject_authentication():
+    return dict(authenticated_user=authenticated_user)
+
+
+@app.before_request
+def check_login():
+    print()
+    print('request path')
+    print(request.path)
+    print(type(request.path))
+    print('url_for')
+    print(url_for('login'))
+    print(type(url_for('login')))
+    print()
+    if authenticated_user or request.path == url_for('login'):
+        return None
+    flash('You need to be login to get access')
+    return redirect(url_for('login', next=request.endpoint))
 #    return "correct password"
 
 
 @app.route('/')
 @app.route('/index')
 @app.route('/home')
-def log_in():
-    return "Hey"
-
-
-@app.route('/media')
-@app.route('/media/')
 def show_main_directory():
-    print()
-    print('show_main')
-    print(basedir)
-    print()
     sub_dir_and_files = get_sub_dir_and_files(basedir)
     return render_template('media.html', sub_directories=sub_dir_and_files['sub_dir'], files=sub_dir_and_files['files'], path=basedir)
-        
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    global authenticated_user
+    if authenticated_user:
+        return redirect(url_for('show_main_directory'))
+    if request.method == 'POST':
+        if not username == request.form.get('username') or not password == request.form.get('password'):
+            flash('Invalid username or password')
+            return redirect(url_for('login'))
+        authenticated_user = True
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':    # An attacker could insert a URL to a malicious site in the next argument, 
+            next_page = url_for('show_main_directory')            # so the application only redirects when the URL is relative,
+        return redirect(next_page)                                # which ensures that the redirect stays within the same site as the application.
+    return render_template('login.html')                          # To determine if the URL is relative or absolute, I parse it with Werkzeug's url_parse() 
+                                                                  # function and then check if the netloc component is set or not.
+                                                                  
+@app.route('/logout')
+def logout():
+    global authenticated_user
+    authenticated_user = False
+    return redirect(url_for('login'))
+
 
 @app.route('/media/<path:path>')
 def show_directory(path):
@@ -109,7 +147,7 @@ def show_directory(path):
     return make_response(render_template('400.html', path=path), 400)
 
 
-@app.route('/media/new-folder/<path:path>')
+@app.route('/new-folder/<path:path>')
 def render_new_folder_form(path):
     return render_template('folderform.html', path=path)
 
