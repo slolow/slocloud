@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/stylesheet.css') }}">
   {% block head %}{% endblock %}
 </head>
 <body>
@@ -21,6 +22,8 @@
 		</ul>
 	  {% endif %}
 	{% endwith %}
+	
+	<img id="sloth" src="{{url_for('static', filename='sloth.jpg')}}" />
 	
 	{% block body %}
 	{% endblock %}
