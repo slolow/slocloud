@@ -1,13 +1,15 @@
 {% extends "layout.html" %}
 
-{% block title %}delete folder{% endblock %}
+{% block title %}Delete folder{% endblock %}
 
-{% block body %}    
-	<div><p>Do you really want to delete this folder? All files and sub folders in {{ path }} will be deleted</p></div>
-	<a href="{{ url_for('delete_folder', path=path) }}">
-		<button type="button">Yes</button>
+{% block body %}
+	<div class="alert alert-danger" role="alert">
+	  Do you really want to delete this folder? All files and sub folders in {{ path }} will be deleted
+	</div>
+	<a class="btn btn-primary" href="{{ url_for('delete_folder', path=path) }}">
+		Yes
 	</a>
-	<a href="{{ url_for('show_directory', path=parent_path) }}">
-		<button type="button">No</button>
+	<a class="btn btn-primary" href="{{ url_for('show_directory', path=parent_path) }}">
+		No
 	</a>
 {% endblock %}

@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 
-{% block title %}upload completed{% endblock %}
+{% block title %}Completed Upload{% endblock %}
 
-{% block body %}    
-	<div><p>Upload completed. Files were saved in {{ path }}</p></div>
-	<p><a href="{{ url_for('show_main_directory') }}">go to home page</a></p>
+{% block body %}
+	<div class="alert alert-success" role="alert">
+	  Upload completed. Files were saved in {{ path }}
+	</div>
 {% endblock %}
-
