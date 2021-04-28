@@ -13,6 +13,7 @@ from flask import Flask, render_template, request, make_response, redirect, url_
 from flask_dropzone import Dropzone
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.urls import url_parse
+from werkzeug.utils import secure_filename
 
 
 if not os.getenv('BASEDIR'):
@@ -35,12 +36,14 @@ app.config.update(
     # Flask-Dropzone config:
     SECRET_KEY=os.getenv('SECRET_KEY'),  # the secret key used to generate CSRF token
     DROPZONE_ALLOWED_FILE_CUSTOM=True,
-    DROPZONE_ALLOWED_FILE_TYPE='image/*, .txt, .pdf, .docx, .html, .py',
-    DROPZONE_MAX_FILE_SIZE=3,
+    #DROPZONE_ALLOWED_FILE_TYPE='image/*, .mp4, .txt, .pdf, .docx, .html, .py',
+    DROPZONE_ALLOWED_FILE_TYPE='image/*, audio/*, video/*, text/*, application/*',
+    DROPZONE_MAX_FILE_SIZE=3000,
     DROPZONE_MAX_FILES=30,
     DROPZONE_PARALLEL_UPLOADS=3,  # set parallel amount
     DROPZONE_UPLOAD_MULTIPLE=True,  # enable upload multiple
     DROPZONE_ENABLE_CSRF=True,  # enable CSRF protection
+    DROPZONE_TIMEOUT = 3000000,
 )
 
 dropzone = Dropzone(app)
@@ -143,15 +146,14 @@ def render_new_folder_form(path):
 def create_new_folder(path):
     path = url_to_path(path)
     folder = request.form.get('folder_name')
-    new_path = os.path.join(path, folder)
-    os.mkdir(new_path)
+    new_path = os.path.join(path, secure_filename(folder))
+    try:
+        os.mkdir(new_path)
+    except FileExistsError:
+        flash("File already exists")
+    except OSError:
+        flash("Something went wrong. Check your folder name")
     return redirect(url_for('show_directory', path=path))
-#    try:
-#        os.mkdir(path)
-#    except OSError:
-#        return make_response(render_template('400.html', path=path, 400)
-#    else:
-#        return redirect(url_for('show_directory', path))
 
 
 @app.route('/confirm-delete-folder/<path:path>')
@@ -173,13 +175,13 @@ def delete_folder(path):
 
 @app.route('/upload/<path:path>', methods=['POST', 'GET'])
 def upload(path):
-    """upload files in global_temp_path"""
+    """upload files"""
     path = url_to_path(path)
     if os.path.exists(path):
         if request.method == 'POST':
             for key, f in request.files.items():
                 if key.startswith('file'):
-                    f.save(os.path.join(path, f.filename))
+                    f.save(os.path.join(path, secure_filename(f.filename)))
         return render_template('upload.html', path=path)
     return make_response(render_template('400.html', path=path), 400)
 
