@@ -1,8 +1,6 @@
 # slocloud
 my own cloud
 
-Momentarily only works for linux Systems
-
 **Demonstration video** on [Youtube](https://youtu.be/oixHn4sj0GY)
 
 **Install in pipenv:**
