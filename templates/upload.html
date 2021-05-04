@@ -5,11 +5,32 @@
 {% block head %}
   {{ dropzone.load_css() }}
   {{ dropzone.style('border: 2px dashed #0087F7; margin: 10%; min-height: 400px;') }}
+  <script type="text/javascript">
+      function showUploadedFiles(file) {
+        if (file.status == "success") {
+          var div = document.createElement('div');
+          div.id = file.name;
+          div.classList.add("alert", "alert-success");
+          div.role = "alert";
+          document.getElementById('main container').prepend(div);
+          document.getElementById(file.name).innerHTML += file.name + " was uploaded";
+        }
+      }
+
+      function showError(file) {
+        var div = document.createElement('div');
+        div.id = file.name;
+        div.classList.add("alert", "alert-danger");
+        div.role = "alert";
+        document.getElementById('main container').prepend(div);
+        var errorMessage = file.previewElement.textContent;
+        document.getElementById(file.name).innerHTML += errorMessage;
+      }
+  </script>
 {% endblock %}
 
 {% block body %}
   {{ dropzone.create(action=url_for('upload', path=path)) }}
   {{ dropzone.load_js() }}
-  <!--{{ dropzone.config(redirect_url=url_for('completed', path=path)) }}-->
-  {{ dropzone.config() }}
+  {{ dropzone.config(custom_init='this.on("complete", function(file){ showUploadedFiles(file); } ); this.on("error", function(error) { showError(error); }); ' ) }}
 {% endblock %}
