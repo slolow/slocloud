@@ -183,11 +183,7 @@ def upload(path):
         if request.method == 'POST':
             for key, f in request.files.items():
                 if key.startswith('file'):
-                    if not os.path.isfile(os.path.join(path, secure_filename(f.filename))):
-                        f.save(os.path.join(path, secure_filename(f.filename)))
-                    else:
-                        print('file already exists')
-                        #flash(f'{f.filename} already exists')
+                    f.save(os.path.join(path, secure_filename(f.filename)))
         return render_template('upload.html', path=path)
     return make_response(render_template('400.html', path=path), 400)
 
