@@ -1,0 +1,1 @@
+web: gunicorn slocloud:app
