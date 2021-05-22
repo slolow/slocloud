@@ -26,6 +26,9 @@ if not os.getenv('USERNAME'):
 if not os.getenv('PASSWORD'):
     raise RuntimeError('PASSWORD is not set as environment variable.')
 basedir = os.getenv('BASEDIR')
+if os.getenv('IS_DEPLOYED_ON_HEROKU'):
+    current_dir_path = os.path.dirname(os.path.realpath(__file__))
+    basedir = os.path.join(current_dir_path, basedir)
 if not os.path.exists(basedir):
     os.makedirs(basedir)
 username = os.getenv('USERNAME')
