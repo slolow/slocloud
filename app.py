@@ -26,6 +26,8 @@ if not os.getenv('USERNAME'):
 if not os.getenv('PASSWORD'):
     raise RuntimeError('PASSWORD is not set as environment variable.')
 basedir = os.getenv('BASEDIR')
+if not os.path.exists(basedir):
+    os.makedirs(basedir)
 username = os.getenv('USERNAME')
 password = os.getenv('PASSWORD')
 authenticated_user = False
