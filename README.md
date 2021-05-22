@@ -21,3 +21,4 @@ my own cloud
      5. pipenv install -r requirements.txt --> Pipfile and Pipfile.lock should be created
      6. pipenv shell
      7. flask run
+     8. if an error occurs try: pipenv install -r working_dependency_versions.txt
