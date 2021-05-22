@@ -1,1 +1,1 @@
-web: gunicorn slocloud:app
+web: gunicorn app
