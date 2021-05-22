@@ -1,5 +1,6 @@
 Pipfile
 Pipfile.lock
 .env
+Heroku_ENV.txt
 tests
 static
